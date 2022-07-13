@@ -1,0 +1,290 @@
+ids:
+  - WorkPlatformId
+  - RequestId
+  - UserId
+  - ExternalId
+  - AccountId
+
+types:
+  WorkPlatform:
+    properties:
+      id: WorkPlatformId
+      name: string
+      logo_url: string
+      created_at: datetime
+      updated_at: datetime
+      category: Category
+      status: Status
+      url: string
+      products: Products
+
+  Category:
+    enum:
+      - MEDIA
+      - EDUCATION
+      - SOCIAL
+      - ENTERTAINMENT
+      - LIFESTYLE
+      - BUSINESS
+
+  Status:
+    enum:
+      - ACTIVE
+      - INACTIVE
+
+  Products:
+    properties:
+      identity: Identity
+      engagement: Engagement
+      income: Income
+      switch: Switch
+
+  Audience:
+    properties:
+      is_supported: boolean
+
+  Identity:
+    properties:
+      is_supported: boolean
+      audience: Audience
+
+  Engagement:
+    properties:
+      is_supported: boolean
+      audience: Audience
+
+  Income:
+    properties:
+      is_supported: boolean
+
+  # TODO for Fern: support "Switch" as a type name.
+  # Switch:
+  #   properties:
+  #     is_supported: boolean
+
+  AllWorkPlatforms:
+    properties:
+      data: list<WorkPlatform>
+      metadata: Metadata
+
+  Metadata:
+    properties:
+      offset: integer
+      limit: integer
+      from_date: optional<datetime>
+      to_date: optional<datetime>
+
+  User:
+    properties:
+      name: string
+      external_id: ExternalId
+      id: UserId
+      created_at: datetime
+      updated_at: datetime
+      status: Status
+
+  AllUsersResponse:
+    properties:
+      data: list<User>
+      metadata: Metadata
+
+  CreateUserRequest:
+    properties:
+      name: string
+      external_id: string
+
+  SDKTokenRequest:
+    properties:
+      user_id: UserId
+      products: set<PhylloProducts>
+
+  PhylloProducts:
+    enum:
+      - IDENTITY
+      - ENGAGEMENT
+      - INCOME
+
+      # TODO for Fern: support "." in value field.
+      # - name: ENGAGEMENT_AUDIENCE
+      #   value: ENGAGEMENT.AUDIENCE
+      # - name: IDENTITY_AUDIENCE
+      #   value: IDENTITY.AUDIENCE
+
+  SDKTokenResponse:
+    properties:
+      sdk_token: string
+      expires_at: datetime
+
+  Account:
+    properties:
+      id: AccountId
+      created_at: datetime
+      updated_at: datetime
+      user: UserAttribute
+      work_platform: WorkPlatformAttribute
+      platform_username: optional<string>
+      profile_pic_url: optional<string>
+      status: string
+      platform_profile_name: string
+      platform_profile_id: string
+      platform_profile_published_at: optional<string>
+      data: Data
+
+  UserAttribute:
+    properties:
+      id: UserId
+      name: string
+
+  WorkPlatformAttribute:
+    properties:
+      id: WorkPlatformId
+      name: string
+      logo_url: string
+
+  Data:
+    properties:
+      identity: DataIdentity
+      engagement: DataEngagement
+      income: DataIncome
+
+  DataIdentity:
+    properties:
+      status: DataStatus
+      last_sync_at: datetime
+      monitoring_type: DataMonitoring
+      audience: IdentityAudience
+
+  DataStatus:
+    enum:
+      - SYNCED
+      - IN_PROGRESS
+      - NOT_SUPPORTED
+      - NOT_SYNCED
+      - PARTIAL_SYNCED
+
+  DataMonitoring:
+    enum:
+      - STANDARD
+      - ON_DEMAND
+
+  IdentityAudience:
+    properties:
+      status: DataStatus
+      last_sync_at: datetime
+      monitoring_type: DataMonitoring
+
+  DataEngagement:
+    properties:
+      status: DataStatus
+      last_sync_at: optional<datetime>
+      refresh_since: optional<datetime>
+      data_available_from: optional<datetime>
+      monitoring_type: DataMonitoring
+
+  DataIncome:
+    properties:
+      status: DataStatus
+      last_sync_at: optional<datetime>
+      refresh_since: optional<datetime>
+      data_available_from: optional<datetime>
+      monitoring_type: DataMonitoring
+
+  AllAccountsResponse:
+    properties:
+      data: list<User>
+      metadata: Metadata
+
+  DisconnectAccountResponse:
+    properties:
+      id: AccountId
+      created_at: datetime
+      updated_at: datetime
+      user: UserAttribute
+      work_platform: WorkPlatformAttribute
+      status: AccountStatus
+
+  AccountStatus:
+    enum:
+      - CONNECTED
+      - NOT_CONNECTED
+      - SESSION_EXPIRED
+
+services:
+  http:
+    ConnectService:
+      auth: none
+      base-path: /v1
+      endpoints:
+        getWorkPlatform:
+          path: /work-platforms/{id}
+          method: GET
+          path-parameters:
+            id: WorkPlatformId
+          response: WorkPlatform
+
+        getAllWorkPlatforms:
+          path: /work-platforms
+          method: GET
+          query-parameters:
+            limit: optional<integer>
+            name: optional<string>
+            offset: optional<integer>
+          response: AllWorkPlatforms
+
+        getUser:
+          path: /users/{id}
+          method: GET
+          path-parameters:
+            id: UserId
+          response: User
+
+        getAllUsers:
+          path: /users
+          method: GET
+          query-parameters:
+            limit: optional<integer>
+            offset: optional<integer>
+          response: AllUsersResponse
+
+        createUser:
+          path: /users
+          method: POST
+          request: CreateUserRequest
+          response: User
+
+        getUserByExernalId:
+          path: /users/external_id/{external_id}
+          method: GET
+          path-parameters:
+            external_id: ExternalId
+          response: User
+
+        createSDKToken:
+          path: /sdk-tokens
+          method: POST
+          request: SDKTokenRequest
+          response: SDKTokenResponse
+
+        getAccount:
+          path: /accounts/{id}
+          method: GET
+          path-parameters:
+            id: AccountId
+          response: Account
+
+        getAllAccounts:
+          path: /accounts
+          method: GET
+          query-parameters:
+            limit: optional<integer>
+            offset: optional<integer>
+            user_id: optional<UserId>
+            work_platform_id: optional<WorkPlatformId>
+          response: AllAccountsResponse
+
+        disconnectAccount:
+          path: /accounts/{id}/disconnect
+          method: POST
+          path-parameters:
+            id: AccountId
+          response: DisconnectAccountResponse
