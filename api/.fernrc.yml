@@ -1,3 +1,9 @@
 name: api
 definition: src
-generators: []
+generators:
+  - name: fernapi/fern-java
+    version: 0.0.80
+    generate: true
+    config:
+      packagePrefix: com.phyllo
+      mode: client

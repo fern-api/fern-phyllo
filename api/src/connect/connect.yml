@@ -57,10 +57,9 @@ types:
     properties:
       is_supported: boolean
 
-  # TODO for Fern: support "Switch" as a type name.
-  # Switch:
-  #   properties:
-  #     is_supported: boolean
+  Switch:
+    properties:
+      is_supported: boolean
 
   AllWorkPlatforms:
     properties:
@@ -91,7 +90,7 @@ types:
   CreateUserRequest:
     properties:
       name: string
-      external_id: string
+      external_id: ExternalId
 
   SDKTokenRequest:
     properties:
@@ -103,12 +102,10 @@ types:
       - IDENTITY
       - ENGAGEMENT
       - INCOME
-
-      # TODO for Fern: support "." in value field.
-      # - name: ENGAGEMENT_AUDIENCE
-      #   value: ENGAGEMENT.AUDIENCE
-      # - name: IDENTITY_AUDIENCE
-      #   value: IDENTITY.AUDIENCE
+      - name: ENGAGEMENT_AUDIENCE
+        value: ENGAGEMENT.AUDIENCE
+      - name: IDENTITY_AUDIENCE
+        value: IDENTITY.AUDIENCE
 
   SDKTokenResponse:
     properties:
@@ -212,7 +209,7 @@ types:
 services:
   http:
     ConnectService:
-      auth: none
+      auth: basic
       base-path: /v1
       endpoints:
         getWorkPlatform:
