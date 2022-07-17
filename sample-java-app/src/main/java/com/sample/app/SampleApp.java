@@ -2,11 +2,10 @@ package com.sample.app;
 
 import com.fern.java.auth.BasicAuthHeader;
 import com.phyllo.client.connect.ConnectServiceClient;
-import com.phyllo.types.connect.AllAccountsResponse;
-import com.phyllo.types.connect.AllWorkPlatformsResponse;
+import com.phyllo.types.connect.Account;
+import com.phyllo.types.connect.AccountId;
 import com.phyllo.types.connect.WorkPlatform;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.phyllo.types.connect.WorkPlatformId;
 
 public class SampleApp {
 
@@ -18,23 +17,29 @@ public class SampleApp {
                 BasicAuthHeader.of("4dab2366-20b1-4d2f-86e1-d47749f33c23",
                         "51ac7485-b366-4bfd-8fd2-963e6a58fdb3");
 
-        AllWorkPlatformsResponse allWorkPlatforms = connectServiceClient.getAllWorkPlatforms(basicAuthHeader,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty());
-        System.out.printf("Received %d work platforms!\n", allWorkPlatforms.data().size());
+        exampleGetWorkPlatform(connectServiceClient, basicAuthHeader);
+        exampleGetUser(connectServiceClient, basicAuthHeader);
+    }
 
-        String commaDelimitedWorkPlatformNames = allWorkPlatforms.data().stream()
-                .map(WorkPlatform::name)
-                .collect(Collectors.joining(", "));
-        System.out.println("The names are: " + commaDelimitedWorkPlatformNames);
+    private static void exampleGetWorkPlatform(
+            ConnectServiceClient connectServiceClient, BasicAuthHeader basicAuthHeader) {
+        System.out.println("####### fetching work platform by id #######");
+        WorkPlatform workPlatform = connectServiceClient.getWorkPlatform(
+                basicAuthHeader, WorkPlatformId.valueOf("dfe5c762-10b2-44fd-b3f2-2c6387690da8"));
+        System.out.println(
+                "Received work platform with name " + workPlatform.name() + " and url " + workPlatform.url());
+        System.out.println();
+    }
 
-        AllAccountsResponse allAccountsResponse = connectServiceClient.getAllAccounts(
-                basicAuthHeader,
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty());
-        allAccountsResponse.data();
+    private static void exampleGetUser(
+            ConnectServiceClient connectServiceClient, BasicAuthHeader basicAuthHeader) {
+        System.out.println("####### fetching account by id #######");
+        Account account = connectServiceClient.getAccount(
+                basicAuthHeader, AccountId.valueOf("db49910f-9311-4ede-94a2-f16d3043152f"));
+        System.out.println(
+                "Received account for " + account.user().name() + "!");
+        System.out.println(
+                "Account status is " + account.status() + "!");
+        System.out.println();
     }
 }
