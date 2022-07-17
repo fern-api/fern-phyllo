@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://maven-dev.buildwithfern.com"
+    }
+}
+
+dependencies {
+    implementation 'com.phyllo-fern.fern:api-client:0.0.9'
+}
