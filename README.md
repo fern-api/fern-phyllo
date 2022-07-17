@@ -1,29 +1,42 @@
 # Phyllo Clients
 
 This repository contains:
-  
+
 - [Fern API Definition](/api/src/api.yml) of the Phyllo Connect API
-- [Sample app](TODO) consuming generated Java SDK
-  
+- [Sample app](./sample-java-app/src/main/java/com/sample/app/SampleApp.java) consuming generated Java SDK
+
 > The Fern team wrote the definition based on your docs.
 
 ## Java Sample App
 
-The core logic lives in [MyApp.java](TODO).
+The core logic lives in [SampleApp.java](./sample-java-app/src/main/java/com/sample/app/SampleApp.java).
 
 > Fern provides the user with an easy way to instantiate a client
 
 ```java
-EXAMPLE
+ConnectServiceClient client = ConnectServiceClient
+  .getClient("https://api.sandbox.getphyllo.com")
 ```
 
 > and type safety when invoking different endpoints.
 
 ```java
-EXAMPLE
+WorkPlatform workPlatform = client.getWorkPlatform(
+  basicAuthHeader, workPlatformId);
 ```
 
 **Run the sample app by:**
 
-- opening []./sample-java-app](TODO) in Intellij
+- opening [./sample-java-app](./sample-java-app/) in Intellij
 - hitting play on main
+
+The output you will see after hitting play is:
+
+```
+####### fetching work platform by id #######
+Received work platform with name Reddit and url https://www.reddit.com
+
+####### fetching account by id #######
+Received account for Arvind!
+Account status is CONNECTED!
+```

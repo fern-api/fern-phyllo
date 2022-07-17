@@ -6,19 +6,23 @@ ids:
   - AccountId
 
 types:
-  WorkPlatform:
+  WorkPlatformAttribute:
     properties:
       id: WorkPlatformId
       name: string
       logo_url: string
+
+  WorkPlatform:
+    extends: WorkPlatformAttribute
+    properties:
       created_at: datetime
       updated_at: datetime
-      category: Category
+      category: WorkPlatformCategory
       status: Status
       url: string
       products: Products
 
-  Category:
+  WorkPlatformCategory:
     enum:
       - MEDIA
       - EDUCATION
@@ -34,35 +38,34 @@ types:
 
   Products:
     properties:
-      identity: Identity
-      engagement: Engagement
-      income: Income
-      switch: Switch
+      identity: IdentityProduct
+      engagement: EngagementProduct
+      income: IncomeProduct
+      switch: SwitchProduct
 
   Audience:
     properties:
       is_supported: boolean
 
-  Identity:
+  IdentityProduct:
     properties:
       is_supported: boolean
       audience: Audience
 
-  Engagement:
+  EngagementProduct:
     properties:
       is_supported: boolean
       audience: Audience
 
-  Income:
+  IncomeProduct:
     properties:
       is_supported: boolean
 
-  # TODO for Fern: support "Switch" as a type name.
-  # Switch:
-  #   properties:
-  #     is_supported: boolean
+  SwitchProduct:
+    properties:
+      is_supported: boolean
 
-  AllWorkPlatforms:
+  AllWorkPlatformsResponse:
     properties:
       data: list<WorkPlatform>
       metadata: Metadata
@@ -71,14 +74,22 @@ types:
     properties:
       offset: integer
       limit: integer
-      from_date: optional<datetime>
-      to_date: optional<datetime>
+      from_date:
+        type: optional<string>
+        docs: YYYY-MM-DD
+      to_date:
+        type: optional<string>
+        docs: YYYY-MM-DD
+
+  UserAttribute:
+    properties:
+      id: UserId
+      name: string
 
   User:
+    extends: UserAttribute
     properties:
-      name: string
       external_id: ExternalId
-      id: UserId
       created_at: datetime
       updated_at: datetime
       status: Status
@@ -91,7 +102,7 @@ types:
   CreateUserRequest:
     properties:
       name: string
-      external_id: string
+      external_id: ExternalId
 
   SDKTokenRequest:
     properties:
@@ -103,12 +114,10 @@ types:
       - IDENTITY
       - ENGAGEMENT
       - INCOME
-
-      # TODO for Fern: support "." in value field.
-      # - name: ENGAGEMENT_AUDIENCE
-      #   value: ENGAGEMENT.AUDIENCE
-      # - name: IDENTITY_AUDIENCE
-      #   value: IDENTITY.AUDIENCE
+      - name: ENGAGEMENT_AUDIENCE
+        value: ENGAGEMENT.AUDIENCE
+      - name: IDENTITY_AUDIENCE
+        value: IDENTITY.AUDIENCE
 
   SDKTokenResponse:
     properties:
@@ -124,35 +133,24 @@ types:
       work_platform: WorkPlatformAttribute
       platform_username: optional<string>
       profile_pic_url: optional<string>
-      status: string
-      platform_profile_name: string
-      platform_profile_id: string
-      platform_profile_published_at: optional<string>
-      data: Data
+      status: AccountStatus
+      platform_profile_name: optional<string> # Required in docs, but missing over the wire
+      platform_profile_id: optional<string> # Required in docs, but missing over the wire
+      platform_profile_published_at: optional<datetime>
+      data: AccountData
 
-  UserAttribute:
+  AccountData:
     properties:
-      id: UserId
-      name: string
+      identity: optional<IdentityData>
+      engagement: optional<EngagementData>
+      income: optional<IncomeData>
 
-  WorkPlatformAttribute:
-    properties:
-      id: WorkPlatformId
-      name: string
-      logo_url: string
-
-  Data:
-    properties:
-      identity: DataIdentity
-      engagement: DataEngagement
-      income: DataIncome
-
-  DataIdentity:
+  IdentityData:
     properties:
       status: DataStatus
-      last_sync_at: datetime
-      monitoring_type: DataMonitoring
-      audience: IdentityAudience
+      last_sync_at: optional<datetime>
+      monitor_type: MonitoringType # monitoring_type in docs, but monitor_type over the wire
+      audience: optional<IdentityAudienceData>
 
   DataStatus:
     enum:
@@ -162,36 +160,45 @@ types:
       - NOT_SYNCED
       - PARTIAL_SYNCED
 
-  DataMonitoring:
+  MonitoringType:
     enum:
       - STANDARD
       - ON_DEMAND
 
-  IdentityAudience:
+  IdentityAudienceData:
     properties:
       status: DataStatus
-      last_sync_at: datetime
-      monitoring_type: DataMonitoring
+      last_sync_at: optional<datetime>
+      monitor_type: MonitoringType # monitoring_type in docs, but monitor_type over the wire
 
-  DataEngagement:
+  EngagementData:
     properties:
       status: DataStatus
       last_sync_at: optional<datetime>
       refresh_since: optional<datetime>
       data_available_from: optional<datetime>
-      monitoring_type: DataMonitoring
+      monitor_type: MonitoringType # monitoring_type in docs, but monitor_type over the wire
+      audience: optional<EngagementAudienceData>
 
-  DataIncome:
+  EngagementAudienceData:
     properties:
       status: DataStatus
       last_sync_at: optional<datetime>
       refresh_since: optional<datetime>
       data_available_from: optional<datetime>
-      monitoring_type: DataMonitoring
+      monitor_type: MonitoringType # monitoring_type in docs, but monitor_type over the wire
+
+  IncomeData:
+    properties:
+      status: DataStatus
+      last_sync_at: optional<datetime>
+      refresh_since: optional<datetime>
+      data_available_from: optional<datetime>
+      monitor_type: MonitoringType # monitoring_type in docs, but monitor_type over the wire
 
   AllAccountsResponse:
     properties:
-      data: list<User>
+      data: list<Account>
       metadata: Metadata
 
   DisconnectAccountResponse:
@@ -212,7 +219,7 @@ types:
 services:
   http:
     ConnectService:
-      auth: none
+      auth: basic
       base-path: /v1
       endpoints:
         getWorkPlatform:
@@ -229,7 +236,7 @@ services:
             limit: optional<integer>
             name: optional<string>
             offset: optional<integer>
-          response: AllWorkPlatforms
+          response: AllWorkPlatformsResponse
 
         getUser:
           path: /users/{id}
