@@ -2,7 +2,7 @@
 
 This repository contains:
 
-- [Fern API Definition](/api/src/api.yml) of the Phyllo Connect API
+- [Fern API Definition](/api/src/connect/connect.yml) of the Phyllo Connect API
 - [Sample app](./sample-java-app/src/main/java/com/sample/app/SampleApp.java) consuming [generated Java SDK](./sample-java-app/build.gradle#L13)
 
 > The Fern team wrote the definition based on your docs.
